@@ -6,7 +6,8 @@
 
 import React, { Component } from 'react'
 import { Navigator, View, StatusBar, Platform } from 'react-native'
-import Wrapper from './component/Wrapper'
+import Splish from './pages/Splash';
+// import Wrapper from './component/Wrapper'
 //import Events from './util/event'
 
 export default class Navigation extends Component{
@@ -31,7 +32,7 @@ export default class Navigation extends Component{
              barStyle="light-content"
            />
             <Navigator
-              initialRoute={{component: Wrapper}}
+              initialRoute={{component: Splish}}
               configureScene={() => Navigator.SceneConfigs.FloatFromRight}
               renderScene={(route, navigator) => {
                     return <route.component navigator={navigator} {...route.args}/>

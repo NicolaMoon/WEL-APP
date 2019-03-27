@@ -13,4 +13,4 @@ import {
 
 import rootApp from './app/root';
 
-AppRegistry.registerComponent('我饿了', () => rootApp);
+AppRegistry.registerComponent('Elm', () => rootApp);
