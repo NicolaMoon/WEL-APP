@@ -38,7 +38,7 @@ export default class Setting extends Component {
         <ScrollView>
           <Item name="账户安全" first={true} onPress={this.goProfile.bind(this)}/>
           <Item name="通用"/>
-          <Item name="关于饿了么" first={true}/>
+          <Item name="关于我饿了" first={true}/>
           <Item.Button name="退出登录" first={true}/>
         </ScrollView>
       </View>
