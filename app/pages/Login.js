@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { View, Text, StatusBar, StyleSheet, TextInput } from 'react-native';
 import Button from '../component/Button';
 import Register from './Register';
-import Home from './Home';
+import Wrapper from '../component/Wrapper';
 
 export default class extends Component {
   state = {
@@ -12,7 +12,7 @@ export default class extends Component {
 
   handleGoHome() {
     this.props.navigator.push({
-      component: Home,
+      component: Wrapper,
       args: {}
     });
   }
