@@ -18,7 +18,7 @@ export default class Navigation extends Component{
 
         return Platform.OS == "ios"?(
           <Navigator
-            initialRoute={{component: Wrapper}}
+            initialRoute={{component: Splish}}
             configureScene={() => Navigator.SceneConfigs.FloatFromRight}
             renderScene={(route, navigator) => {
                   return <route.component navigator={navigator} {...route.args}/>
