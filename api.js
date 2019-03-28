@@ -10,7 +10,7 @@ const loginSubmit = (params) => {
 };
 
 const registerSubmit = (params) => {
-  return getFetch(`/hungry?operateCode=2&phone=${params.phone}&password=${params.password}`);
+  return getFetch(`/hungry?choice=1&operateCode=1&phone=${params.phone}&password=${params.password}&nickName=${params.name}&imageURL=qazwsxedc`);
 };
 
 export default api = {

@@ -18,7 +18,16 @@ export default class Setting extends Component {
     const { name, phone, password, rePassword } = this.state;
     if (password === rePassword) {
       api.registerSubmit({ name, phone, password }).then((data) => {
-
+        if (data.state === "success") {
+          this.handleBack();
+        } else {
+          Alert.alert(
+            '❌注册失败',
+            [
+              { text: '确定' },
+            ]
+          );
+        }
       });
     } else {
       Alert.alert(
@@ -83,7 +92,7 @@ export default class Setting extends Component {
               onChangeText={(rePassword) => this.setState({ rePassword })}
               maxLength={12}
             />
-            <Button style={{ position: "absolute", bottom: 8, left: 8, right: 8, flex: 1 }} onPress={() => { }}>
+            <Button style={{ position: "absolute", bottom: 8, left: 8, right: 8, flex: 1 }} onPress={this.handleRegister.bind(this)}>
               <View style={{ height: 60, flexDirection: "row", backgroundColor: "#2ea1fe", flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 12 }}>
                 <Text style={{ color: "#fff", fontSize: 32, marginLeft: 8 }}>确定</Text>
               </View>
