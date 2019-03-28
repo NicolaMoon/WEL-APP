@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { View, Text, StatusBar, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StatusBar, StyleSheet, TextInput, Alert } from 'react-native';
 import Button from '../component/Button';
 import NavBar from '../component/NavBar';
+import api from '../../api';
 //FontAwesome
 export default class Setting extends Component {
   constructor(props) {
@@ -13,7 +14,23 @@ export default class Setting extends Component {
     password: undefined,
     rePassword: undefined,
   }
-  back() {
+  handleRegister() {
+    const { name, phone, password, rePassword } = this.state;
+    if (password === rePassword) {
+      api.registerSubmit({ name, phone, password }).then((data) => {
+
+      });
+    } else {
+      Alert.alert(
+        '❌错误提示',
+        '密码与确认密码不一致',
+        [
+          { text: '确定' },
+        ]
+      );
+    }
+  }
+  handleBack() {
     this.props.navigator.pop()
   }
   render() {
@@ -22,7 +39,7 @@ export default class Setting extends Component {
         <NavBar
           title="注册"
           leftIcon="ios-arrow-back"
-          leftPress={this.back.bind(this)}
+          leftPress={this.handleBack.bind(this)}
         />
         <View style={{ flex: 1, backgroundColor: "#fff" }}>
           <StatusBar backgroundColor="#1890ff" />

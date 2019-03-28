@@ -24,7 +24,7 @@ export default class extends Component {
             [
               { text: '确定' },
             ]
-          )
+          );
         }
       });
   }

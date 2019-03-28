@@ -5,6 +5,15 @@ const getFetch = (url) => {
   return fetch(`${HOST}${url}`).then((res) => res.json());
 }
 
-export const loginSubmit = (params) => {
-  return getFetch(`/servlet/FirstServlet?operateCode=2&phone=${params.phone}&password=${params.password}`);
+const loginSubmit = (params) => {
+  return getFetch(`/hungry?choice=1&operateCode=2&phone=${params.phone}&password=${params.password}`);
+};
+
+const registerSubmit = (params) => {
+  return getFetch(`/hungry?operateCode=2&phone=${params.phone}&password=${params.password}`);
+};
+
+export default api = {
+  loginSubmit,
+  registerSubmit,
 };
