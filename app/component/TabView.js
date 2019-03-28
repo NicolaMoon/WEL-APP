@@ -17,7 +17,6 @@ import TabNavigator from 'react-native-tab-navigator'
 import px2dp from '../util'
 let {width, height} = Dimensions.get('window')
 import HomePage from '../pages/Home'
-import Discover from '../pages/Discover'
 import Order from '../pages/Order'
 import My from '../pages/My'
 
@@ -30,7 +29,6 @@ export default class TabView extends Component {
     }
     this.tabNames = [
       ["外卖", "logo-google", "HomePage", <HomePage {...this.props}/>],
-      ["发现", "ios-compass-outline", "Discover", <Discover {...this.props}/>],
       ["订单", "ios-list-box-outline", "Order", <Order {...this.props}/>],
       ["我的", "ios-contact-outline", "My", <My {...this.props}/>]
     ]
