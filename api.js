@@ -1,4 +1,4 @@
-const HOST = 'http://192.168.43.144:8080/hungry?';
+const HOST = 'http://106.12.196.243:8080/hungry?';
 
 const getFetch = (url) => {
   return fetch(`${HOST}${url}`).then((res) => res.json());
