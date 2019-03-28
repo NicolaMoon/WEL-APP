@@ -1,13 +1,32 @@
 import React, { Component } from 'react';
-import { View, Text, StatusBar, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StatusBar, StyleSheet, TextInput, AsyncStorage, Alert } from 'react-native';
 import Button from '../component/Button';
 import Register from './Register';
 import Wrapper from '../component/Wrapper';
+import api from '../../api';
 
 export default class extends Component {
   state = {
     phone: undefined,
     password: undefined,
+  }
+
+  handleSubmit() {
+    const { phone, password } = this.state;
+    api.loginSubmit({ phone, password }).then((data) => {
+        if (data.state === "success") {
+          AsyncStorage.setItem('userToken', data.userId.toString());
+          this.handleGoHome();
+        } else {
+          Alert.alert(
+            '❌登录失败',
+            '请检查您的输入，号码或密码错误',
+            [
+              { text: '确定' },
+            ]
+          )
+        }
+      });
   }
 
   handleGoHome() {
@@ -51,7 +70,7 @@ export default class extends Component {
             onChangeText={(password) => this.setState({ password })}
             maxLength={12}
           />
-          <Button style={{ position: "absolute", bottom: 80, left: 8, right: 8, flex: 1 }} onPress={this.handleGoHome.bind(this)}>
+          <Button style={{ position: "absolute", bottom: 80, left: 8, right: 8, flex: 1 }} onPress={this.handleSubmit.bind(this)}>
             <View style={{ height: 60, flexDirection: "row", backgroundColor: "#2ea1fe", flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 12 }}>
               <Text style={{ color: "#fff", fontSize: 32, marginLeft: 8 }}>登录</Text>
             </View>
