@@ -1,11 +1,27 @@
 import React, { Component } from 'react';
 import { View, Text, StatusBar, StyleSheet, TextInput } from 'react-native';
 import Button from '../component/Button';
+import Register from './Register';
+import Home from './Home';
 
 export default class extends Component {
   state = {
     phone: undefined,
     password: undefined,
+  }
+
+  handleGoHome() {
+    this.props.navigator.push({
+      component: Home,
+      args: {}
+    });
+  }
+
+  handleGoRegister() {
+    this.props.navigator.push({
+      component: Register,
+      args: {}
+    });
   }
 
   render() {
@@ -35,12 +51,12 @@ export default class extends Component {
             onChangeText={(password) => this.setState({ password })}
             maxLength={12}
           />
-          <Button style={{ position: "absolute", bottom: 80, left: 8, right: 8, flex: 1 }} onPress={() => { }}>
+          <Button style={{ position: "absolute", bottom: 80, left: 8, right: 8, flex: 1 }} onPress={this.handleGoHome.bind(this)}>
             <View style={{ height: 60, flexDirection: "row", backgroundColor: "#2ea1fe", flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 12 }}>
               <Text style={{ color: "#fff", fontSize: 32, marginLeft: 8 }}>登录</Text>
             </View>
           </Button>
-          <Button style={{ position: "absolute", bottom: 8, left: 8, right: 8, flex: 1 }} onPress={() => { }}>
+          <Button style={{ position: "absolute", bottom: 8, left: 8, right: 8, flex: 1 }} onPress={this.handleGoRegister.bind(this)}>
             <View style={{ height: 60, flexDirection: "row", backgroundColor: "#2ea1fe", flex: 1, alignItems: "center", justifyContent: "center", borderRadius: 12 }}>
               <Text style={{ color: "#fff", fontSize: 32, marginLeft: 8 }}>注册</Text>
             </View>
@@ -50,8 +66,6 @@ export default class extends Component {
     );
   }
 }
-
-const Dimensions = require('Dimensions');
 
 const styles = StyleSheet.create({
   title: {
