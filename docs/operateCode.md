@@ -17,8 +17,6 @@ User.jsp
 
 
 
-
-
 Seller.jsp
 
 //操作码及其操作说明如果
@@ -27,6 +25,10 @@ Seller.jsp
 	//3 修改卖家商品列表    参数(sellerId,password,goodsList)
 	//4 获取卖家信息       参数(sellerId)
 	//5 获取所有卖家ID     参数()
+
+​        //6 获取卖家信息    参数(sellerId[])
+
+
 
 
 
@@ -46,7 +48,9 @@ Address.jsp
 	//3 修改地址           参数(userId,password,addrId,linkman,sex,phone,province,city,area,specificAddr)
 	//4 查询地址信息        参数(userId,password,addrId)
 	//5 获取用户全部地址ID  参数(userId,password)
-    
+
+​	//6 查询地址信息  参数(userId,password,addrId[])
+
 
 
 Goods.jsp
@@ -58,6 +62,8 @@ Goods.jsp
 	//4 获取全部商品ID              参数()
 	//5 根据卖家ID获取其所有商品ID    参数(sellerId)
 
+​        //6 根据商品ID获取商品信息        参数(goodsId[])
+
 
 
 Orders.jsp
@@ -68,6 +74,10 @@ Orders.jsp
 	//3 根据订单ID查询订单内容                参数(userId,password,ordersId)
 	//4 查询用户的全部订单                    参数(userId,password)
 
+​       //5 根据订单ID查询订单内容                参数(userId,password,ordersId[])
+
+
+
 
 
 Appraise.jsp
@@ -77,3 +87,5 @@ Appraise.jsp
 	//2 根据评价Id查询评价内容       参数(appraiseId)
 	//3 根据订单Id查询评价ID        参数(orderId)
 	//4 根据商品ID获取全部评价ID     参数(goodsId)
+
+​        //5 根据评价Id查询评价内容       参数(appraiseId[])

@@ -51,29 +51,13 @@ export default class DetailPage extends Component {
       viewRef: 0,
       b: {},
       goods: data.goods,
-      data: {
-        name: "田老师红烧肉（知春路店）",
-        isBrand: true,
-        logo: 27,
-        scores: 3.5,
-        sale: 4013,
-        bao: true,
-        piao: true,
-        ontime: true,
-        fengniao: true,
-        startPay: "￥20起送",
-        deliverPay: "配送费￥4",
-        evOnePay: "￥21/人",
-        journey: "250m",
-        time: "35分钟",
-        bulletin: "公告：春节前，配送紧张，可能延时推送，请客户谅解",
-        activities: [
-          {key: "减", text: "满20减2，满30减3，满40减4（不与美食活动同享）"},
-          {key: "特", text: "双人餐特惠"}
-        ]
-      }
+      data: this.props.seller
     }
   }
+  componentWillMount(){
+    goods();
+  }
+
   componentDidMount(){
     let marginTop = 18+px2dp(80+this.state.data.activities.length*18)
     let { scrollY } = this.refs.goodsList.state
@@ -86,6 +70,9 @@ export default class DetailPage extends Component {
       scrollY: scrollY.interpolate({inputRange: [0, marginTop, marginTop],outputRange: [0, -marginTop, -marginTop]}),
       bgY: scrollY.interpolate({inputRange: [ -marginTop, 0, marginTop, marginTop],outputRange: [marginTop/2, 0, -marginTop/3, -marginTop/3]})
     })
+  }
+  getGoods(){
+
   }
   back(){
     this.props.navigator.pop()

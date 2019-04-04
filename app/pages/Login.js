@@ -26,7 +26,7 @@ export default class extends Component {
             ]
           );
         }
-      });
+      },(err)=>{console.log(err)});
   }
 
   handleGoHome() {

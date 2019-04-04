@@ -28,6 +28,7 @@ import LocalImg from '../images'
 import px2dp from '../util'
 import Icon from 'react-native-vector-icons/Ionicons'
 import Swiper from 'react-native-swiper'
+import SplashScreen from 'react-native-splash-screen'
 
 import SearchView from '../component/SearchView'
 import LbsModal from '../component/LbsModal'
@@ -35,6 +36,7 @@ import TabView from '../component/TabView'
 import Bz from '../component/Bz'
 import DetailPage from './DetailPage'
 import data from '../data'
+import api from '../../api'
 
 const isIOS = Platform.OS == "ios"
 const { width, height } = Dimensions.get('window')
@@ -42,29 +44,82 @@ const headH = px2dp(isIOS?140:120)
 const InputHeight = px2dp(28)
 
 export default class HomePage extends Component {
-  constructor(props){
-      super(props)
-      this.state = {
-        location: "三里屯SOHO",
-        scrollY: new Animated.Value(0),
-        searchView: new Animated.Value(0),
-        modalVisible: false,
-        searchBtnShow: true,
-        listLoading: false,
-        isRefreshing: false
-      }
+  constructor(props) {
+    super(props)
+    this.state = {
+      location: "武汉理工大学",
+      scrollY: new Animated.Value(0),
+      searchView: new Animated.Value(0),
+      modalVisible: false,
+      searchBtnShow: true,
+      listLoading: false,
+      isRefreshing: false,
+      sellersList: [],
+    }
 
-      this.SEARCH_BOX_Y = px2dp(isIOS?48:43)
-      this.SEARCH_FIX_Y = headH-px2dp(isIOS?64:44)
-      this.SEARCH_KEY_P = px2dp(58)
-      this.SEARCH_DIFF_Y = this.SEARCH_FIX_Y-this.SEARCH_BOX_Y
-      this.SEARCH_FIX_DIFF_Y = headH-this.SEARCH_FIX_Y-headH
+    this.SEARCH_BOX_Y = px2dp(isIOS ? 48 : 43)
+    this.SEARCH_FIX_Y = headH - px2dp(isIOS ? 64 : 44)
+    this.SEARCH_KEY_P = px2dp(58)
+    this.SEARCH_DIFF_Y = this.SEARCH_FIX_Y - this.SEARCH_BOX_Y
+    this.SEARCH_FIX_DIFF_Y = headH - this.SEARCH_FIX_Y - headH
   }
-  componentDidMount(){
-      BackAndroid.addEventListener('hardwareBackPress', function () {
-          BackAndroid.exitApp(0)
-          return true
-      })
+
+  componentWillMount(){
+    //获取所有商家信息
+    this.getAllSellers();
+  }
+
+  //页面加载完成之后加载
+  componentDidMount() {
+    BackAndroid.addEventListener('hardwareBackPress', function () {
+      BackAndroid.exitApp(0)
+      return true
+    })
+  }
+
+  getAllSellers(){
+    let sellersId;
+    api.homeGetSellersId().then(res => {
+      sellersId = JSON.parse(res.goodsList);
+      let data = {
+        choice: 2,
+        operateCode: 6,
+        sellerId: sellersId.join(',')
+      };
+      return api.homeGetAllSellers(data);
+    }).then(res => {
+      let sellersList = [];
+      let List = res;
+      List.forEach((item,index) => {
+        let good = {
+          id:sellersId[index],
+          name: "",
+          isBrand: true,
+          logo: 1,
+          scores: 3.5,
+          sale: 2000,  //销量
+          bao: true,
+          piao: true,
+          ontime: true,
+          fengniao: true,
+          startPay: "￥20起送",
+          deliverPay: "配送费￥4",
+          evOnePay: "￥20/人",
+          journey: "250m",
+          time: "35分钟",
+          activities: [
+            {key: "减", text: "满20减2，满30减3，满40减4（不与美食活动同享）"},
+            {key: "特", text: "双人餐特惠"}
+          ],
+
+        }
+        let logo = parseInt(Math.random()*26)+1;
+        good["name"] = item.sellerName + '(' + item.address + ')';
+        good['logo'] = logo;
+        sellersList.push(good);
+      });
+      this.setState({sellersList: sellersList});
+    });
   }
   _renderHeader(){
     let searchY = this.state.scrollY.interpolate({
@@ -80,50 +135,50 @@ export default class HomePage extends Component {
       outputRange: [1, 1, 0]
     })
     return (
-      <View style={styles.header}>
-        <Animated.View style={[styles.lbsWeather, {opacity: lbsOpaticy}]}>
-          <TouchableWithoutFeedback onPress={this.openLbs.bind(this)}>
-            <View style={styles.lbs}>
-              <Icon name="ios-pin" size={px2dp(18)} color="#fff" />
-              <Text style={{fontSize: px2dp(18), fontWeight: 'bold', color:"#fff", paddingHorizontal: 5}}>{this.state.location}</Text>
-              <Icon name="md-arrow-dropdown" size={px2dp(16)} color="#fff" />
+        <View style={styles.header}>
+          <Animated.View style={[styles.lbsWeather, {opacity: lbsOpaticy}]}>
+            <TouchableWithoutFeedback onPress={this.openLbs.bind(this)}>
+              <View style={styles.lbs}>
+                <Icon name="ios-pin" size={px2dp(18)} color="#fff" />
+                <Text style={{fontSize: px2dp(18), fontWeight: 'bold', color:"#fff", paddingHorizontal: 5}}>{this.state.location}</Text>
+                <Icon name="md-arrow-dropdown" size={px2dp(16)} color="#fff" />
+              </View>
+            </TouchableWithoutFeedback>
+            <View style={styles.weather}>
+              <View style={{marginRight: 5}}>
+                <Text style={{color: "#fff", fontSize: px2dp(11), textAlign: "center"}}>{"3°"}</Text>
+                <Text style={{color: "#fff", fontSize: px2dp(11)}}>{"阵雨"}</Text>
+              </View>
+              <Icon name="ios-flash-outline" size={px2dp(25)} color="#fff" />
             </View>
-          </TouchableWithoutFeedback>
-          <View style={styles.weather}>
-            <View style={{marginRight: 5}}>
-              <Text style={{color: "#fff", fontSize: px2dp(11), textAlign: "center"}}>{"3°"}</Text>
-              <Text style={{color: "#fff", fontSize: px2dp(11)}}>{"阵雨"}</Text>
-            </View>
-            <Icon name="ios-flash-outline" size={px2dp(25)} color="#fff" />
-          </View>
-        </Animated.View>
-        <Animated.View style={{
-          marginTop: px2dp(15),
-          transform: [{
-            translateY: searchY
-          }]
-        }}>
-          <TouchableWithoutFeedback onPress={()=>{}}>
-            <View style={[styles.searchBtn, {backgroundColor: "#fff"}]}>
-              <Icon name="ios-search-outline" size={20} color="#666" />
-              <Text style={{fontSize: 13, color:"#666", marginLeft: 5}}>{"输入商家，商品名称"}</Text>
-            </View>
-          </TouchableWithoutFeedback>
-        </Animated.View>
-        <Animated.View style={[styles.keywords, {opacity: keyOpaticy}]}>
-          {
-            ['肯德基','烤肉','吉野家','粥','必胜客','一品生煎','星巴克'].map((item, i) => {
-              return (
-                <TouchableWithoutFeedback key={i}>
-                  <View style={{marginRight: 12}}>
-                    <Text style={{fontSize: px2dp(12), color:"#fff"}}>{item}</Text>
-                  </View>
-                </TouchableWithoutFeedback>
-              )
-            })
-          }
-        </Animated.View>
-      </View>
+          </Animated.View>
+          <Animated.View style={{
+            marginTop: px2dp(15),
+            transform: [{
+              translateY: searchY
+            }]
+          }}>
+            <TouchableWithoutFeedback onPress={()=>{}}>
+              <View style={[styles.searchBtn, {backgroundColor: "#fff"}]}>
+                <Icon name="ios-search-outline" size={20} color="#666" />
+                <Text style={{fontSize: 13, color:"#666", marginLeft: 5}}>{"输入商家，商品名称"}</Text>
+              </View>
+            </TouchableWithoutFeedback>
+          </Animated.View>
+          <Animated.View style={[styles.keywords, {opacity: keyOpaticy}]}>
+            {
+              ['肯德基','烤肉','麦当劳','粥','必胜客','一品生煎','星巴克'].map((item, i) => {
+                return (
+                    <TouchableWithoutFeedback key={i}>
+                      <View style={{marginRight: 12}}>
+                        <Text style={{fontSize: px2dp(12), color:"#fff"}}>{item}</Text>
+                      </View>
+                    </TouchableWithoutFeedback>
+                )
+              })
+            }
+          </Animated.View>
+        </View>
     )
   }
   _renderFixHeader(){
@@ -132,35 +187,35 @@ export default class HomePage extends Component {
       outputRange: [-9999, -9999, 0, 0]
     })
     return (
-      <Animated.View style={[styles.header, {
-        position: "absolute",
-        left: 0,
-        right: 0,
-        top: 0,
-        bottom:0,
-        height: px2dp(isIOS?64:44),
-        paddingTop: px2dp(isIOS?25:10),
-        transform: [
-          {translateY: showY}
-        ]
-      }]}>
-        <TouchableWithoutFeedback onPress={()=>{}}>
-          <View style={[styles.searchBtn, {backgroundColor: "#fff"}]}>
-            <Icon name="ios-search-outline" size={20} color="#666" />
-            <Text style={{fontSize: 13, color:"#666", marginLeft: 5}}>{"输入商家，商品名称"}</Text>
-          </View>
-        </TouchableWithoutFeedback>
-      </Animated.View>
+        <Animated.View style={[styles.header, {
+          position: "absolute",
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom:0,
+          height: px2dp(isIOS?64:44),
+          paddingTop: px2dp(isIOS?25:10),
+          transform: [
+            {translateY: showY}
+          ]
+        }]}>
+          <TouchableWithoutFeedback onPress={()=>{}}>
+            <View style={[styles.searchBtn, {backgroundColor: "#fff"}]}>
+              <Icon name="ios-search-outline" size={20} color="#666" />
+              <Text style={{fontSize: 13, color:"#666", marginLeft: 5}}>{"输入商家，商品名称"}</Text>
+            </View>
+          </TouchableWithoutFeedback>
+        </Animated.View>
     )
   }
   openSearch(){
     this._scrollY = this.state.scrollY._value
     const { timing } = Animated
     Animated.parallel(['scrollY', 'searchView'].map(property => {
-            return timing(this.state[property], {
-            toValue: property=='scrollY'?this.SEARCH_FIX_Y:1,
-            duration: 200
-        });
+      return timing(this.state[property], {
+        toValue: property=='scrollY'?this.SEARCH_FIX_Y:1,
+        duration: 200
+      });
     })).start(() => {
       //this.setState({searchBtnShow: false})
     })
@@ -171,14 +226,14 @@ export default class HomePage extends Component {
       this.state.scrollY.setValue(this._scrollY)
     }else{
       Animated.timing(this.state.scrollY, {
-          toValue: this._scrollY,
-          duration: 200
+        toValue: this._scrollY,
+        duration: 200
       }).start()
     }
     //this.refs["search"].blur()
     Animated.timing(this.state.searchView, {
-        toValue: 0,
-        duration: 200
+      toValue: 0,
+      duration: 200
     }).start(() => this.setState({searchBtnShow: true}))
     TabView.showTabBar(200)
   }
@@ -192,36 +247,36 @@ export default class HomePage extends Component {
     const w = width/4, h = w*.6 + 20
     let renderSwipeView = (types, n) => {
       return (
-        <View style={styles.typesView}>
-          {
-            types.map((item, i) => {
-              let render = (
-                <View style={[{width: w, height: h}, styles.typesItem]}>
-                  <Image source={LocalImg['h'+(i+n)]} style={{width: w*.5, height: w*.5}}/>
-                  <Text style={{fontSize: px2dp(12), color:"#666"}}>{item}</Text>
-                </View>
-              )
-              return (
-                isIOS?(
-                  <TouchableHighlight style={{width: w, height: h}} key={i} onPress={() => {}}>{render}</TouchableHighlight>
-                ):(
-                  <TouchableNativeFeedback style={{width: w, height: h}} key={i} onPress={() => {}}>{render}</TouchableNativeFeedback>
+          <View style={styles.typesView}>
+            {
+              types.map((item, i) => {
+                let render = (
+                    <View style={[{width: w, height: h}, styles.typesItem]}>
+                      <Image source={LocalImg['h'+(i+n)]} style={{width: w*.5, height: w*.5}}/>
+                      <Text style={{fontSize: px2dp(12), color:"#666"}}>{item}</Text>
+                    </View>
                 )
-              )
-            })
-          }
-        </View>
+                return (
+                    isIOS?(
+                        <TouchableHighlight style={{width: w, height: h}} key={i} onPress={() => {}}>{render}</TouchableHighlight>
+                    ):(
+                        <TouchableNativeFeedback style={{width: w, height: h}} key={i} onPress={() => {}}>{render}</TouchableNativeFeedback>
+                    )
+                )
+              })
+            }
+          </View>
       )
     }
     return (
-      <Swiper
-        height={h*2.4}
-        paginationStyle={{ bottom: 10 }}
-        dotStyle={{backgroundColor:'rgba(0,0,0,.2)', width: 6, height: 6}}
-        activeDotStyle={{backgroundColor:'rgba(0,0,0,.5)', width: 6, height: 6}}>
-        {renderSwipeView(['美食','甜品饮品','商店超市','预定早餐','果蔬生鲜','新店特惠','准时达','高铁订餐'], 0)}
-        {renderSwipeView(['土豪推荐','鲜花蛋糕','汉堡炸鸡','日韩料理','麻辣烫','披萨意面','川湘菜','包子粥店'], 8)}
-      </Swiper>
+        <Swiper
+            height={h*2.4}
+            paginationStyle={{ bottom: 10 }}
+            dotStyle={{backgroundColor:'rgba(0,0,0,.2)', width: 6, height: 6}}
+            activeDotStyle={{backgroundColor:'rgba(0,0,0,.5)', width: 6, height: 6}}>
+          {renderSwipeView(['美食','甜品饮品','商店超市','预定早餐','果蔬生鲜','新店特惠','准时达','高铁订餐'], 0)}
+          {renderSwipeView(['土豪推荐','鲜花蛋糕','汉堡炸鸡','日韩料理','麻辣烫','披萨意面','川湘菜','包子粥店'], 8)}
+        </Swiper>
     )
   }
   _renderHot(){
@@ -255,127 +310,127 @@ export default class HomePage extends Component {
         )
       }
       return isIOS?(
-        <View key={i} style={[styles.recomItem, styl[i], {backgroundColor: "#f5f5f5"}]}>
-          <TouchableHighlight style={{flex: 1}} onPress={() => {}}>{_render(i)}</TouchableHighlight>
-        </View>
+          <View key={i} style={[styles.recomItem, styl[i], {backgroundColor: "#f5f5f5"}]}>
+            <TouchableHighlight style={{flex: 1}} onPress={() => {}}>{_render(i)}</TouchableHighlight>
+          </View>
       ):(
-        <View key={i} style={[styles.recomItem, styl[i]]}>
-          <TouchableNativeFeedback style={{flex: 1, height: 70}}>{_render(i)}</TouchableNativeFeedback>
-        </View>
+          <View key={i} style={[styles.recomItem, styl[i]]}>
+            <TouchableNativeFeedback style={{flex: 1, height: 70}}>{_render(i)}</TouchableNativeFeedback>
+          </View>
       )
     })
 
   }
-  _renderLtime(){
-    return (
-      <View>
-        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <View style={{flexDirection: "row", alignItems: "center"}}>
-            <Text style={{fontSize: px2dp(14), fontWeight: "bold"}}>限时抢购</Text>
-            <Text style={{fontSize: px2dp(11), color: "#aaa", marginLeft: 10}}>距离结束</Text>
-            <Text style={styles.time}>01</Text>
-            <Text style={{fontSize: px2dp(11), color: "#aaa"}}>:</Text>
-            <Text style={styles.time}>07</Text>
-            <Text style={{fontSize: px2dp(11), color: "#aaa"}}>:</Text>
-            <Text style={styles.time}>10</Text>
-          </View>
-          <TouchableOpacity>
-            <View style={{flexDirection: "row", alignItems: "center"}}>
-              <Text style={{fontSize: px2dp(12), color: "#aaa", marginRight: 3}}>更多</Text>
-              <Icon name="ios-arrow-forward-outline" size={px2dp(13)} color="#bbb" />
-            </View>
-          </TouchableOpacity>
-        </View>
-        <ScrollView
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          horizontal={true}
-          style={styles.lTimeScrollView}>
-          <View style={{flexDirection: "row", alignItems: "center", paddingTop: 15}}>
-            {
-              ["全素冒菜套餐", "荤素套餐", "培根餐", "酸汤水饺"].map((item, i) => {
-                let layout = (
-                  <View style={styles.lTimeList}>
-                    <Image source={LocalImg["sale"+i]} style={{height: px2dp(85), width: px2dp(85), resizeMode: 'cover'}}/>
-                    <Text style={{fontSize: px2dp(13), color: "#333", marginVertical: 5}}>{item}</Text>
-                    <View style={{flexDirection: "row", alignItems: "center"}}>
-                      <Text style={{fontSize: px2dp(14), fontWeight:"bold", color: "#ff6000", marginRight: 2}}>{"￥99"}</Text>
-                      <Text style={{fontSize: px2dp(12), color: "#aaa", textDecorationLine: "line-through"}}>{"￥29"}</Text>
-                    </View>
-                  </View>
-                )
-                return isIOS?(
-                  <TouchableHighlight key={i} style={{borderRadius: 4,marginRight: 10}} onPress={()=>{}}>{layout}</TouchableHighlight>
-                ):(
-                  <View key={i} style={{marginRight: 10}}><TouchableNativeFeedback onPress={()=>{}}>{layout}</TouchableNativeFeedback></View>
-                )
-              })
-            }
-          </View>
-        </ScrollView>
-      </View>
-    )
-  }
-  _renderQuality(){
-    return (
-      <View>
-        <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
-          <Text style={{fontSize: px2dp(14), fontWeight: "bold"}}>品质优选</Text>
-          <TouchableOpacity>
-            <View style={{flexDirection: "row", alignItems: "center"}}>
-              <Text style={{fontSize: px2dp(12), color: "#aaa", marginRight: 3}}>更多</Text>
-              <Icon name="ios-arrow-forward-outline" size={px2dp(13)} color="#bbb" />
-            </View>
-          </TouchableOpacity>
-        </View>
-        <View style={{flexDirection: "row", justifyContent:"space-between", alignItems: "center", flexWrap:"wrap", paddingTop: 15}}>
-          {
-            ["田老师红烧肉","必胜宅急送","嘉和一品","西贝莜面村","宏状元","汉拿山韩式石锅拌饭","U鼎冒菜","阿香米线"].map((item, i) => {
-                let size = px2dp((width-px2dp(120))/4)
-                let layout = (
-                  <View style={styles.lTimeList}>
-                    <Image source={LocalImg["nice"+i]} style={{height: size, width: size, resizeMode: 'cover'}}/>
-                    <Text numberOfLines={1} style={{fontSize: px2dp(12), width: size, color: "#333", marginVertical: 5}}>{item}</Text>
-                    <Text numberOfLines={1} style={styles.qtag}>{"大牌精选"}</Text>
-                  </View>
-                )
-                return isIOS?(
-                  <View key={i} style={{borderRadius: 4,marginRight: 10,paddingTop: i>3?30:0}}><TouchableHighlight onPress={()=>{}}>{layout}</TouchableHighlight></View>
-                ):(
-                  <View key={i} style={{marginRight: 10,paddingTop: i>3?30:0}}><TouchableNativeFeedback onPress={()=>{}}>{layout}</TouchableNativeFeedback></View>
-                )
-            })
-          }
-        </View>
-      </View>
-    )
-  }
-  _renderGift(){
-    return (
-      <View style={{flexDirection: "row"}}>
-        <View style={[styles.gift, {paddingRight: 16}]}>
-          <View>
-            <Text style={{fontWeight: "bold"}}>{"推荐有奖"}</Text>
-            <Text style={{fontSize: 12, color: "#aaa"}}>{"5元现金拿不停"}</Text>
-          </View>
-          <Image source={LocalImg.coupon0} style={{height: 50, width: 50, resizeMode: 'cover'}}/>
-        </View>
-        <View style={[styles.gift, {borderLeftColor: "#f5f5f5", borderLeftWidth: 1, paddingLeft: 16}]}>
-          <View>
-            <Text style={{fontWeight: "bold"}}>{"领券中心"}</Text>
-            <Text style={{fontSize: 12, color: "#aaa"}}>{"代金券免费领"}</Text>
-          </View>
-          <Image source={LocalImg.coupon1} style={{height: 50, width: 50, resizeMode: 'cover'}}/>
-        </View>
-      </View>
-    )
-  }
+  // _renderLtime(){
+  //   return (
+  //     <View>
+  //       {/*<View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>*/}
+  //         {/*/!*<View style={{flexDirection: "row", alignItems: "center"}}>*!/*/}
+  //           {/*/!*<Text style={{fontSize: px2dp(14), fontWeight: "bold"}}>限时抢购</Text>*!/*/}
+  //           {/*/!*<Text style={{fontSize: px2dp(11), color: "#aaa", marginLeft: 10}}>距离结束</Text>*!/*/}
+  //           {/*/!*<Text style={styles.time}>01</Text>*!/*/}
+  //           {/*/!*<Text style={{fontSize: px2dp(11), color: "#aaa"}}>:</Text>*!/*/}
+  //           {/*/!*<Text style={styles.time}>07</Text>*!/*/}
+  //           {/*/!*<Text style={{fontSize: px2dp(11), color: "#aaa"}}>:</Text>*!/*/}
+  //           {/*/!*<Text style={styles.time}>10</Text>*!/*/}
+  //         {/*/!*</View>*!/*/}
+  //         {/*/!*<TouchableOpacity>*!/*/}
+  //           {/*/!*<View style={{flexDirection: "row", alignItems: "center"}}>*!/*/}
+  //             {/*/!*<Text style={{fontSize: px2dp(12), color: "#aaa", marginRight: 3}}>更多</Text>*!/*/}
+  //             {/*/!*<Icon name="ios-arrow-forward-outline" size={px2dp(13)} color="#bbb" />*!/*/}
+  //           {/*/!*</View>*!/*/}
+  //         {/*/!*</TouchableOpacity>*!/*/}
+  //       {/*</View>*/}
+  //       {/*<ScrollView*/}
+  //         {/*showsHorizontalScrollIndicator={false}*/}
+  //         {/*showsVerticalScrollIndicator={false}*/}
+  //         {/*horizontal={true}*/}
+  //         {/*style={styles.lTimeScrollView}>*/}
+  //         {/*<View style={{flexDirection: "row", alignItems: "center", paddingTop: 15}}>*/}
+  //           {/*{*/}
+  //             {/*["全素冒菜套餐", "荤素套餐", "培根餐", "酸汤水饺"].map((item, i) => {*/}
+  //               {/*let layout = (*/}
+  //                 {/*<View style={styles.lTimeList}>*/}
+  //                   {/*<Image source={LocalImg["sale"+i]} style={{height: px2dp(85), width: px2dp(85), resizeMode: 'cover'}}/>*/}
+  //                   {/*<Text style={{fontSize: px2dp(13), color: "#333", marginVertical: 5}}>{item}</Text>*/}
+  //                   {/*<View style={{flexDirection: "row", alignItems: "center"}}>*/}
+  //                     {/*<Text style={{fontSize: px2dp(14), fontWeight:"bold", color: "#ff6000", marginRight: 2}}>{"￥99"}</Text>*/}
+  //                     {/*<Text style={{fontSize: px2dp(12), color: "#aaa", textDecorationLine: "line-through"}}>{"￥29"}</Text>*/}
+  //                   {/*</View>*/}
+  //                 {/*</View>*/}
+  //               {/*)*/}
+  //               {/*// return isIOS?(*/}
+  //               {/*//   <TouchableHighlight key={i} style={{borderRadius: 4,marginRight: 10}} onPress={()=>{}}>{layout}</TouchableHighlight>*/}
+  //               {/*// ):(*/}
+  //               {/*//   <View key={i} style={{marginRight: 10}}><TouchableNativeFeedback onPress={()=>{}}>{layout}</TouchableNativeFeedback></View>*/}
+  //               {/*// )*/}
+  //             {/*})*/}
+  //           {/*}*/}
+  //         {/*</View>*/}
+  //       {/*</ScrollView>*/}
+  //     </View>
+  //   )
+  // }
+  // _renderQuality(){
+  //   return (
+  //     <View>
+  //       <View style={{flexDirection: "row", alignItems: "center", justifyContent: "space-between"}}>
+  //         <Text style={{fontSize: px2dp(14), fontWeight: "bold"}}>品质优选</Text>
+  //         <TouchableOpacity>
+  //           <View style={{flexDirection: "row", alignItems: "center"}}>
+  //             <Text style={{fontSize: px2dp(12), color: "#aaa", marginRight: 3}}>更多</Text>
+  //             <Icon name="ios-arrow-forward-outline" size={px2dp(13)} color="#bbb" />
+  //           </View>
+  //         </TouchableOpacity>
+  //       </View>
+  //       <View style={{flexDirection: "row", justifyContent:"space-between", alignItems: "center", flexWrap:"wrap", paddingTop: 15}}>
+  //         {
+  //           ["田老师红烧肉","必胜宅急送","嘉和一品","西贝莜面村","宏状元","汉拿山韩式石锅拌饭","U鼎冒菜","阿香米线"].map((item, i) => {
+  //               let size = px2dp((width-px2dp(120))/4)
+  //               let layout = (
+  //                 <View style={styles.lTimeList}>
+  //                   <Image source={LocalImg["nice"+i]} style={{height: size, width: size, resizeMode: 'cover'}}/>
+  //                   <Text numberOfLines={1} style={{fontSize: px2dp(12), width: size, color: "#333", marginVertical: 5}}>{item}</Text>
+  //                   <Text numberOfLines={1} style={styles.qtag}>{"大牌精选"}</Text>
+  //                 </View>
+  //               )
+  //               return isIOS?(
+  //                 <View key={i} style={{borderRadius: 4,marginRight: 10,paddingTop: i>3?30:0}}><TouchableHighlight onPress={()=>{}}>{layout}</TouchableHighlight></View>
+  //               ):(
+  //                 <View key={i} style={{marginRight: 10,paddingTop: i>3?30:0}}><TouchableNativeFeedback onPress={()=>{}}>{layout}</TouchableNativeFeedback></View>
+  //               )
+  //           })
+  //         }
+  //       </View>
+  //     </View>
+  //   )
+  // }
+  // _renderGift(){
+  //   return (
+  //     <View style={{flexDirection: "row"}}>
+  //       <View style={[styles.gift, {paddingRight: 16}]}>
+  //         <View>
+  //           <Text style={{fontWeight: "bold"}}>{"推荐有奖"}</Text>
+  //           <Text style={{fontSize: 12, color: "#aaa"}}>{"5元现金拿不停"}</Text>
+  //         </View>
+  //         <Image source={LocalImg.coupon0} style={{height: 50, width: 50, resizeMode: 'cover'}}/>
+  //       </View>
+  //       <View style={[styles.gift, {borderLeftColor: "#f5f5f5", borderLeftWidth: 1, paddingLeft: 16}]}>
+  //         <View>
+  //           <Text style={{fontWeight: "bold"}}>{"领券中心"}</Text>
+  //           <Text style={{fontSize: 12, color: "#aaa"}}>{"代金券免费领"}</Text>
+  //         </View>
+  //         <Image source={LocalImg.coupon1} style={{height: 50, width: 50, resizeMode: 'cover'}}/>
+  //       </View>
+  //     </View>
+  //   )
+  // }
   _renderBZ(){
-    return data.list.map((item, i) => {
+    return this.state.sellersList.map((item, i) => {
       item.onPress = () => {
         this.props.navigator.push({
-            component: DetailPage,
-            args: {}
+          component: DetailPage,
+          args: {seller:item},
         })
       }
       return (<Bz {...item} key={i}/>)
@@ -389,60 +444,62 @@ export default class HomePage extends Component {
   }
   render(){
     return (
-      <View style={{flex: 1, backgroundColor: "#f3f3f3"}}>
-        <ScrollView
-          style={styles.scrollView}
-          onScroll={Animated.event(
-            [{nativeEvent: {contentOffset: {y: this.state.scrollY}}}]
-          )}
-          scrollEventThrottle={16}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.isRefreshing}
-              onRefresh={this._onRefresh.bind(this)}
-              colors={['#ddd', '#0398ff']}
-              progressBackgroundColor="#ffffff"
-            />
-          }
-        >
-          {this._renderHeader()}
-          <View style={{backgroundColor: "#fff", paddingBottom: 10}}>
-            {this._renderTypes()}
-            <TouchableOpacity>
-              <View style={{height: px2dp(90), paddingHorizontal: 10}}>
-                <Image source={LocalImg.ad1} style={{height: px2dp(90), width: width-20, resizeMode: 'cover'}}/>
-              </View>
-            </TouchableOpacity>
-          </View>
+        <View style={{flex: 1, backgroundColor: "#f3f3f3"}}>
+          <ScrollView
+              style={styles.scrollView}
+              onScroll={Animated.event(
+                  [{nativeEvent: {contentOffset: {y: this.state.scrollY}}}]
+              )}
+              scrollEventThrottle={16}
+              refreshControl={
+                <RefreshControl
+                    refreshing={this.state.isRefreshing}
+                    onRefresh={this._onRefresh.bind(this)}
+                    colors={['#ddd', '#0398ff']}
+                    progressBackgroundColor="#ffffff"
+                />
+              }
+          >
+            {this._renderHeader()}
+            <View style={{backgroundColor: "#fff", paddingBottom: 10}}>
+              {this._renderTypes()}
+              {/*拜个早年图片展示*/}
+              <TouchableOpacity>
+                <View style={{height: px2dp(90), paddingHorizontal: 10}}>
+                  <Image source={LocalImg.ad1} style={{height: px2dp(90), width: width-20, resizeMode: 'cover'}}/>
+                </View>
+              </TouchableOpacity>
+            </View>
 
-          <View style={styles.recom}>
-            {this._renderHot()}
-          </View>
-          <View style={styles.card}>
-            {this._renderLtime()}
-          </View>
-          <View style={styles.card}>
-            {this._renderQuality()}
-          </View>
-          <View style={styles.card}>
-            {this._renderGift()}
-          </View>
+            <View style={styles.recom}>
+              {this._renderHot()}
+            </View>
+            {/*<View style={styles.card}>*/}
+            {/*{this._renderLtime()}*/}
+            {/*</View>*/}
+            {/*<View style={styles.card}>*/}
+            {/*{this._renderQuality()}*/}
+            {/*</View>*/}
+            {/*<View style={styles.card}>*/}
+            {/*{this._renderGift()}*/}
+            {/*</View>*/}
 
-          <View style={styles.business}>
-            <Text style={{color: "#666", paddingLeft: 16, paddingBottom: 6}}>{"推荐商家"}</Text>
-            {this._renderBZ()}
-            <ActivityIndicator style={{marginTop: 10}} animating={this.state.listLoading}/>
-          </View>
-        </ScrollView>
-        {this._renderFixHeader()}
-        <SearchView show={this.state.searchView} scrollY={this.state.scrollY}/>
-        <LbsModal
-          modalVisible={this.state.modalVisible}
-          location={this.state.location}
-          setLocation={this.changeLocation.bind(this)}
-          closeModal={(()=>this.setState({modalVisible: false})).bind(this)}
-        />
-      </View>
+            <View style={styles.business}>
+              <Text style={{color: "#666", paddingLeft: 16, paddingBottom: 6}}>{"推荐商家"}</Text>
+              {this._renderBZ()}
+              <ActivityIndicator style={{marginTop: 10}} animating={this.state.listLoading}/>
+            </View>
+          </ScrollView>
+          {this._renderFixHeader()}
+          <SearchView show={this.state.searchView} scrollY={this.state.scrollY}/>
+          {/*地址切换*/}
+          <LbsModal
+              modalVisible={this.state.modalVisible}
+              location={this.state.location}
+              setLocation={this.changeLocation.bind(this)}
+              closeModal={(()=>this.setState({modalVisible: false})).bind(this)}
+          />
+        </View>
     )
   }
 }

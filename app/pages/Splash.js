@@ -17,7 +17,8 @@ export default class Splash extends Component {
   _bootstrapAsync = async () => {
     const userToken = await AsyncStorage.getItem('userToken');
     this.props.navigator.push({
-        component: userToken ? Login : Login,
+        component: userToken ? Wrapper : Login,
+        //component: userToken ? Login : Login,
         args: {}
     });
   };
