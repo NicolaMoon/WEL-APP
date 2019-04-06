@@ -30,6 +30,7 @@ import GoodsList from '../pages/GoodsList'
 import Comments from '../pages/Comments'
 import ShopBar from '../component/ShopBar'
 import { BlurView } from 'react-native-blur'
+import api from "../../api";
 let {width, height} = Dimensions.get('window')
 
 export default class DetailPage extends Component {
@@ -50,12 +51,22 @@ export default class DetailPage extends Component {
       bgScale: 1,
       viewRef: 0,
       b: {},
-      goods: data.goods,
-      data: this.props.seller
+      goods:{
+        "热销榜":[],
+        "盖饭":[],
+        "小菜":[],
+        "小吃":[],
+        "汤/饮料":[],
+        "双拼套餐A":[],
+        "双拼套餐B":[]
+      } ,
+      data: this.props.data,
+      sellerId:this.props.data.id,
+      stockToTC: [,"热销榜","盖饭","小菜","小吃","汤/饮料","双拼套餐A","双拼套餐B"]
     }
   }
   componentWillMount(){
-    goods();
+    this.getGoods();
   }
 
   componentDidMount(){
@@ -72,7 +83,25 @@ export default class DetailPage extends Component {
     })
   }
   getGoods(){
-
+    api.detailGetAllGoodsId(this.state.sellerId).then(res=>{
+      let goodsId = JSON.parse(res.goodsId);
+      api.detailGetAllGoods(goodsId).then(res=> {
+        let list = res;
+        list.forEach(item=>{
+          let image = parseInt(Math.random()*31)+1;
+          let food = {name: "单个狮子头", info:"美味 营养", sale:"月售801份 好评率92%", price:3, image:image};
+          food.name = item.goodsName;
+          food.info = item.intro;
+          food.price = parseFloat(item.price);
+          let grade = parseInt(Math.random()*20)+80;
+          food.sale = "月售"+item.salesVolume+"份 好评率"+grade+"%";
+          let key = this.state.stockToTC[item.stock];
+          let len = this.state.goods[key].length;
+          food['key'] = parseInt(item.stock)-1+'-'+len;
+          this.state.goods[key].push(food);
+        })
+      });
+    });
   }
   back(){
     this.props.navigator.pop()

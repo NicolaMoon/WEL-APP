@@ -45,9 +45,27 @@ const homeGetSellersId = () => {
 const homeGetAllSellers = (data) => {
   return getFetch(data);
 };
+const detailGetAllGoodsId = (sellerId) => {
+    let data = {
+        choice:5,
+        operateCode:5,
+        sellerId: sellerId
+    };
+    return getFetch(data);
+};
+const detailGetAllGoods = (goodsId) => {
+    let data = {
+        choice:5,
+        operateCode:6,
+        goodsId: goodsId.join(',')
+    };
+    return getFetch(data);
+};
 export default api = {
   loginSubmit,
   registerSubmit,
   homeGetAllSellers,
-  homeGetSellersId
+  homeGetSellersId,
+    detailGetAllGoodsId,
+    detailGetAllGoods
 };

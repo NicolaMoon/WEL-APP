@@ -430,7 +430,7 @@ export default class HomePage extends Component {
       item.onPress = () => {
         this.props.navigator.push({
           component: DetailPage,
-          args: {seller:item},
+          args: {data:item},
         })
       }
       return (<Bz {...item} key={i}/>)
