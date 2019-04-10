@@ -9,51 +9,97 @@ import {
   Text,
   View,
   StyleSheet,
-  ScrollView
+  ScrollView,
+  AsyncStorage
 } from 'react-native'
 import px2dp from '../util'
 import NavBar from '../component/NavBar'
 import Button from '../component/Button'
 import EditAddress from './EditAddress'
 import Icon from 'react-native-vector-icons/Ionicons'
+import api from "../../api"
 //FontAwesome
 export default class Address extends Component {
   constructor(props){
       super(props)
       this.state = {
-        address: [
-          {
-            name: "Lei",
-            phone: "13581970418",
-            tag: "公司",
-            color: "#0096ff",
-            address: "微软亚太研发集团"
-          },
-          {
-            name: "Lei",
-            phone: "13581970418",
-            tag: "家",
-            color: "#ff6000",
-            address: "北京朝阳区三里屯SOHO"
-          }
-        ]
+        userId:0,
+        password:'',
+        name:'',
+        phone:'',
+        addrId:[],
+        address:[]
       }
   }
+  componentWillMount(){
+    this.getAllAddr();
+  }
+  getAllAddr() {
+      let that = this;
+      let user;
+      (async function () {
+          user = await AsyncStorage.getItem('userForm')
+      })().then(res => {
+          user = JSON.parse(user);
+          console.log(user);
+          let data = {userId: user.userId, password: user.password};
+          return api.addressGetAddressId(data)
+      }).then(res => {
+              let data = {userId: user.userId, password: user.password, addrId: res.addrId};
+              api.addressGetAllAddress(data).then(res => {
+                  let addr = [];
+                  let arr = res;
+                  arr.forEach((item, index) => {
+                      let o = {
+                          password:user.password,
+                          userId:user.userId,
+                          name: item.linkman,
+                          phone: user.phone,
+                          tag: "住址",
+                          color: "#ff6000",
+                          address: item.province + item.city + item.area + item.specificAddr,
+                          addrId: data.addrId[index],
+                          province:item.province,
+                          city:item.city,
+                          area:item.area,
+                          specificAddr:item.specificAddr,
+                          sex:parseInt(item.sex)
+                      };
+                      addr.push(o);
+                  })
+                  that.setState({
+                      addrId: data.addrId,
+                      password: user.password,
+                      userId: user.userId,
+                      name: user.userName,
+                      phone: user.phone,
+                      address: addr
+                  })
+                  AsyncStorage.setItem('userAddress', JSON.stringify(addr.address));
+              });
+          })
+  }
+
   add(){
+      let that = this;
     this.props.navigator.push({
         component: EditAddress,
         args: {
           pageType: 0,
+            'refresh':that.getAllAddr,
           title: "新增地址"
         }
     })
   }
   edit(data){
+      console.log('address')
+      console.log(data)
     this.props.navigator.push({
         component: EditAddress,
         args: {
           pageType: 1,
           title: "修改地址",
+            refresh:function(){this.getAllAddr();},
           data
         }
     })

@@ -16,6 +16,15 @@ export default class extends Component {
     api.loginSubmit({ phone, password }).then((data) => {
         if (data.state === "success") {
           AsyncStorage.setItem('userToken', data.userId.toString());
+          AsyncStorage.setItem('userForm',JSON.stringify({phone:data.phone,password:this.state.password,userId:data.userId,userName:data.nickName}));
+          (async ()=>{
+            console.log(await AsyncStorage.getItem('userWallet'));
+            if(await AsyncStorage.getItem('userWallet')==null){
+              AsyncStorage.setItem('userWallet',JSON.stringify({balance:9999,integration:10}));
+            }
+          })();
+
+
           this.handleGoHome();
         } else {
           Alert.alert(

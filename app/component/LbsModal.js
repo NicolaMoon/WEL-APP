@@ -16,13 +16,14 @@ import {
   Platform,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator, AsyncStorage
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import TabNavigator from 'react-native-tab-navigator'
 import px2dp from '../util'
 import NavBar from '../component/NavBar'
 import Button from '../component/Button'
+import api from "../../api"
 let {width, height} = Dimensions.get('window')
 const isAndroid = Platform.OS == "android"
 
@@ -31,25 +32,52 @@ export default class LbsModal extends Component {
     super(props)
     this.state = {
       loading: false,
+      addrId:'',
       address: [
-        {
-          name: "Lei",
-          phone: "13581970418",
-          tag: "公司",
-          color: "#0096ff",
-          address: "微软亚太研发集团"
-        },
-        {
-          name: "Lei",
-          phone: "13581970418",
-          tag: "家",
-          color: "#ff6000",
-          address: "北京朝阳区三里屯SOHO"
-        }
       ],
       near: ["颐和雅苑烤鸭坊", "中国电子大厦", "立方-庭"]
     }
   }
+  componentWillMount(){
+    this.getAllAddr()
+  }
+  getAllAddr() {
+    let that = this;
+    let user;
+    (async function () {
+      user = await AsyncStorage.getItem('userForm');
+    })().then(()=> {
+      user = JSON.parse(user);
+      console.log(user);
+      let data = {userId: user.userId, password: user.password};
+      return api.addressGetAddressId(data)
+    }).then(res => {
+      let data = {userId: user.userId, password: user.password, addrId: res.addrId};
+      api.addressGetAllAddress(data).then(res => {
+        let addr = [];
+        let arr = res;
+        arr.forEach((item, index) => {
+          let o = {
+            name: item.linkman,
+            phone: user.phone,
+            tag: "住址",
+            color: "#ff6000",
+            address: item.province + item.city + item.area + item.specificAddr,
+            addrId: data.addrId[index],
+          };
+          addr.push(o);
+        })
+          this.state.address = addr;
+
+      });
+    })
+  }
+  selectAddrId(addrId,index){
+    this.setState({addrId:addrId});
+    console.log(this.state.addrId+' '+addrId);
+    AsyncStorage.setItem('selectedAddress', addrId);
+  }
+
   closeModal(){
     this.props.closeModal()
   }
@@ -108,12 +136,12 @@ export default class LbsModal extends Component {
           {
             this.state.address.map((item, i) => {
               return (
-                <Button key={i} onPress={()=>{}}>
-                  <View style={styles.address1}>
+                <Button key={i} onPress={() => this.selectAddrId(item.addrId)} >
+                  <View style={[styles.address1]}>
                     <Text style={{color: "#333", fontSize: px2dp(14)}}>{item.name+" "+item.phone}</Text>
                     <View style={styles.ads1List}>
                       <Text style={[styles.tag, {backgroundColor: item.color || "#0096ff", }]}>{item.tag}</Text>
-                      <Text style={{color: "#bbb", fontSize: px2dp(13)}}>{item.address}</Text>
+                      <Text style={[{color: "#bbb", fontSize: px2dp(13)},this.state.addrId==item.addrId?styles.active:null]}>{item.address}</Text>
                     </View>
                   </View>
                 </Button>
@@ -139,6 +167,10 @@ export default class LbsModal extends Component {
 }
 
 const styles = StyleSheet.create({
+  active: {
+    borderColor: "#81c2ff",
+    color: "#0096ff"
+  },
   wrap: {
     flex: 1,
     backgroundColor: "#fff"

@@ -18,7 +18,8 @@ import {
   TouchableHighlight,
   TouchableNativeFeedback,
   TouchableWithoutFeedback,
-  RefreshControl
+  RefreshControl,
+  AsyncStorage
 } from 'react-native'
 import LocalImg from '../images'
 import NavBar from '../component/NavBar'
@@ -35,20 +36,44 @@ export default class My extends Component {
   constructor(props){
       super(props)
       this.state = {
-        isRefreshing: false
+        isRefreshing: false,
+        integration:0,
+        balance:0,
+        phone:'',
+        name:''
       }
       this.config = [
         {icon:"ios-pin", name:"收货地址", onPress:this.goPage.bind(this, "address")},
-        {icon:"ios-heart", name:"我的收藏", color:"#fc7b53"},
-        {icon:"md-images", name:"美食相册"},
-        {icon:"logo-usd", name:"推荐有奖", subName:"5元现金", color:"#fc7b53"},
-        {icon:"ios-cart", name:"积分商城", subName:"0元好物在这里", color:"#94d94a"},
-        {icon:"ios-medal", name:"饿了吗会员卡", subName:"未开通", color:"#ffc636"},
-        {icon:"md-flower", name:"服务中心"},
-        {icon:"ios-outlet", name:"欢迎评分"},
-        {icon:"md-contacts", name:"加盟合作"},
+        // {icon:"ios-heart", name:"我的收藏", color:"#fc7b53"},
+        // {icon:"md-images", name:"美食相册"},
+        // {icon:"logo-usd", name:"推荐有奖", subName:"5元现金", color:"#fc7b53"},
+        // {icon:"ios-cart", name:"积分商城", subName:"0元好物在这里", color:"#94d94a"},
+        // {icon:"ios-medal", name:"饿了吗会员卡", subName:"未开通", color:"#ffc636"},
+        // {icon:"md-flower", name:"服务中心"},
+        // {icon:"ios-outlet", name:"欢迎评分"},
+        // {icon:"md-contacts", name:"加盟合作"},
       ]
   }
+  componentWillMount(){
+    this.getUser();
+  }
+  getUser(){
+      (async ()=> {
+          try {
+              let user = await AsyncStorage.getItem('userForm');
+              let wallet = await AsyncStorage.getItem('userWallet');
+              user = JSON.parse(user);
+              wallet = JSON.parse(wallet);
+                  this.setState({balance: wallet.balance});
+                  this.setState({integration: wallet.integration});
+                  this.setState({phone: user.phone});
+                  this.setState({name: user.userName});
+
+          } catch (error) {
+              // Error retrieving data
+          }
+      })();
+    }
   goPage(key, data = {}){
     let pages = {
       "address": Address
@@ -120,10 +145,10 @@ export default class My extends Component {
                 <View style={{flex: 1,flexDirection: "row"}}>
                   <Image source={LocalImg.avatar} style={{width: px2dp(60), height: px2dp(60), borderRadius: px2dp(30)}}/>
                   <View style={{flex: 1, marginLeft: 10, paddingVertical: 5}}>
-                    <Text style={{color: "#fff", fontSize: px2dp(18)}}>_平行时空</Text>
+                    <Text style={{color: "#fff", fontSize: px2dp(18)}}>{this.state.name}</Text>
                     <View style={{marginTop: px2dp(10), flexDirection: "row"}}>
                       <Icon name="ios-phone-portrait-outline" size={px2dp(14)} color="#fff" />
-                      <Text style={{color: "#fff", fontSize: 13, paddingLeft: 5}}>135****0418</Text>
+                      <Text style={{color: "#fff", fontSize: 13, paddingLeft: 5}}>{this.state.phone}</Text>
                     </View>
                   </View>
                 </View>
@@ -133,19 +158,19 @@ export default class My extends Component {
             <View style={styles.numbers}>
               <TouchableWithoutFeedback>
                 <View style={styles.numItem}>
-                    <Text style={{color: "#f90", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{"999999.0元"}</Text>
+                    <Text style={{color: "#f90", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{this.state.balance}</Text>
                     <Text style={{color: "#333", fontSize: 12, textAlign: "center", paddingTop: 5}}>{"余额"}</Text>
                 </View>
               </TouchableWithoutFeedback>
-              <TouchableWithoutFeedback>
-              <View style={[styles.numItem,{borderLeftWidth: 1, borderLeftColor: "#f5f5f5",borderRightWidth: 1, borderRightColor: "#f5f5f5"}]}>
-                  <Text style={{color: "#ff5f3e", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{"1940个"}</Text>
-                  <Text style={{color: "#333", fontSize: 12, textAlign: "center", paddingTop: 5}}>{"优惠"}</Text>
-              </View>
-              </TouchableWithoutFeedback>
+              {/*<TouchableWithoutFeedback>*/}
+              {/*/!*<View style={[styles.numItem,{borderLeftWidth: 1, borderLeftColor: "#f5f5f5",borderRightWidth: 1, borderRightColor: "#f5f5f5"}]}>*!/*/}
+                  {/*/!*<Text style={{color: "#ff5f3e", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{"1940个"}</Text>*!/*/}
+                  {/*/!*<Text style={{color: "#333", fontSize: 12, textAlign: "center", paddingTop: 5}}>{"优惠"}</Text>*!/*/}
+              {/*/!*</View>*!/*/}
+              {/*</TouchableWithoutFeedback>*/}
               <TouchableWithoutFeedback>
               <View style={styles.numItem}>
-                  <Text style={{color: "#6ac20b", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{"999999分"}</Text>
+                  <Text style={{color: "#6ac20b", fontSize: 18, textAlign: "center", fontWeight: "bold"}}>{this.state.integration}</Text>
                   <Text style={{color: "#333", fontSize: 12, textAlign: "center", paddingTop: 5}}>{"积分"}</Text>
               </View>
               </TouchableWithoutFeedback>

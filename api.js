@@ -61,11 +61,68 @@ const detailGetAllGoods = (goodsId) => {
     };
     return getFetch(data);
 };
+const addressGetAddressId = (params) => {
+    let data = {
+        choice:4,
+        operateCode:5,
+        userId:params.userId,
+        password:params.password
+    };
+    return getFetch(data);
+};
+const addressGetAllAddress = (params) => {
+    let data = {
+        choice:4,
+        operateCode:6,
+        userId:params.userId,
+        password:params.password,
+        addrId:params.addrId.join(',')
+    };
+    return getFetch(data);
+};
+const addressSetAddress = (params) => {
+    let data = {
+        choice:4,
+        operateCode:3,
+        userId:params.userId,
+        password:params.password,
+        addrId:params.addrId,
+        linkman:params.linkman,
+        sex:params.sex,
+        phone:params.phone,
+        province:params.province,
+        city:params.city,
+        area:params.area,
+        specificAddr:params.specificAddr
+    };
+    return getFetch(data);
+};
+const addressAddAddress = (params) => {
+    let data = {
+        choice:4,
+        operateCode:1,
+        userId:params.userId,
+        password:params.password,
+        linkman:params.linkman,
+        sex:params.sex,
+        phone:params.phone,
+        province:params.province,
+        city:params.city,
+        area:params.area,
+        specificAddr:params.specificAddr
+    };
+    return getFetch(data);
+};
 export default api = {
   loginSubmit,
   registerSubmit,
   homeGetAllSellers,
   homeGetSellersId,
     detailGetAllGoodsId,
-    detailGetAllGoods
+    detailGetAllGoods,
+    addressGetAddressId,
+    addressGetAllAddress,
+    addressSetAddress,
+    addressAddAddress
+
 };

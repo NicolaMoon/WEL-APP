@@ -14,7 +14,9 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+    Alert,
+  AsyncStorage
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { BlurView } from 'react-native-blur'
@@ -36,6 +38,30 @@ export default class ShopBar extends Component{
           easing: Easing.elastic(3)
       }).start()
     }
+    pay(){
+      Alert.alert(
+          '订单支付',
+          '订单支付后无法取消，确认支付吗？',
+          [
+            {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+            {text: 'OK', onPress: () => this.upPayData()},
+          ],
+          { cancelable: false }
+      )
+    }
+    upPayData(){
+        (async () => {
+        try {
+          const value = await AsyncStorage.getAllKeys();
+          if (value !== null) {
+            // We have data!!
+            console.log(value);
+          }
+        } catch (error) {
+          // Error retrieving data
+        }
+      })();
+    }
     render(){
       let { list, lens } = this.props
       return (
@@ -52,7 +78,7 @@ export default class ShopBar extends Component{
               </View>
               {!lens.maxPrice?
                 <Text style={styles.price}>{"￥6元起"}</Text>:
-                <Text style={[styles.price, {backgroundColor:"#00c257", color:"#fff"}]}>{"去结算"}</Text>}
+                <Text style={[styles.price, {backgroundColor:"#00c257", color:"#fff"}]} onPress={()=>this.pay()}>{"支付"}</Text>}
 
           </View>
           <Animated.View style={[styles.iconWrap, {
