@@ -72,10 +72,10 @@ export default class LbsModal extends Component {
       });
     })
   }
-  selectAddrId(addrId,index){
+  selectAddrId(addrId,address){
+    //console.log({addrId:addrId,address:address})
     this.setState({addrId:addrId});
-    console.log(this.state.addrId+' '+addrId);
-    AsyncStorage.setItem('selectedAddress', addrId);
+    AsyncStorage.setItem('selectedAddress', JSON.stringify({addrId:addrId,address:address}));
   }
 
   closeModal(){
@@ -136,7 +136,7 @@ export default class LbsModal extends Component {
           {
             this.state.address.map((item, i) => {
               return (
-                <Button key={i} onPress={() => this.selectAddrId(item.addrId)} >
+                <Button key={i} onPress={() => this.selectAddrId(item.addrId,item.address)} >
                   <View style={[styles.address1]}>
                     <Text style={{color: "#333", fontSize: px2dp(14)}}>{item.name+" "+item.phone}</Text>
                     <View style={styles.ads1List}>

@@ -15,11 +15,12 @@ import {
   AlertIOS,
   RefreshControl,
   TouchableHighlight,
-  TouchableNativeFeedback
+  TouchableNativeFeedback, AsyncStorage
 } from 'react-native'
 
 import px2dp from '../util'
 import data from '../data'
+import api from '../../api'
 
 class Item extends Component {
   constructor(props){
@@ -31,8 +32,9 @@ class Item extends Component {
       state: PropTypes.string,
       time: PropTypes.string,
       info: PropTypes.string,
-      price: PropTypes.string
+      price: PropTypes.string,
   }
+
   render(){
     const { title, logo, state, time, info, price } = this.props
     let render = (
@@ -71,13 +73,47 @@ export default class TakeOut extends Component {
       }
   }
   componentDidMount(){
+    this.getAllOrder();
     this._onRefresh()
+  }
+  getAllOrder(){
+    let user;
+    (async function () {
+      user = await AsyncStorage.getItem('userForm')
+    })().then(res => {
+      user = JSON.parse(user);
+      let data = {userId: user.userId, password: user.password};
+      return api.TackOutGetAllId(data)
+    }).then(res=>{
+      let data = {userId: user.userId, password: user.password,ordersId:JSON.parse(res.ordersId)};
+      return api.TackOutGetAllOrder(data);
+    }).then(res=> {
+      let order =[];
+      res.forEach(item=>{
+        let content = item.content.split(',');
+        let o ={
+          title: "来西口（酒仙桥）",
+          logo: 14,
+          state: "订单已完成",
+          time: "2016-09-05 12:11",
+          info: "特色油泼面等两件商品",
+          price: "￥57"
+        }
+        o.title = content[0];
+        o.time = item.orderTime;
+        o.info = content.slice(1).join('+');
+        o.price = '￥'+item.totalPrice;
+        order.push(o);
+      })
+      this.setState({
+        data: order,
+      })
+    })
   }
   _onRefresh(){
     this.setState({isRefreshing: true});
     setTimeout(() => {
       this.setState({
-        data: data.orderData,
         isRefreshing: false
       })
     }, 1500)

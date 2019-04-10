@@ -25,7 +25,7 @@ export default class Order extends Component {
         <NavBar title="订单"/>
         <ScrollableTabView renderTabBar={() => <TabViewBar/>}>
           <TakeOut tabLabel="外卖"/>
-          <Breakfast tabLabel="早餐"/>
+          {/*<Breakfast tabLabel="早餐"/>*/}
         </ScrollableTabView>
       </View>
     )

@@ -16,7 +16,7 @@ import {
   Platform,
   findNodeHandle,
   Image,
-  TouchableOpacity
+  TouchableOpacity, AsyncStorage, Alert
 } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import ScrollableTabView from 'react-native-scrollable-tab-view'
@@ -51,21 +51,27 @@ export default class DetailPage extends Component {
       bgScale: 1,
       viewRef: 0,
       b: {},
-      goods:{
-        "热销榜":[],
-        "盖饭":[],
-        "小菜":[],
-        "小吃":[],
-        "汤/饮料":[],
-        "双拼套餐A":[],
-        "双拼套餐B":[]
-      } ,
+      goods:data.goods ,
       data: this.props.data,
       sellerId:this.props.data.id,
       stockToTC: [,"热销榜","盖饭","小菜","小吃","汤/饮料","双拼套餐A","双拼套餐B"]
     }
   }
   componentWillMount(){
+    (async () =>
+    {
+      const selectedAddress = JSON.parse(await AsyncStorage.getItem('selectedAddress'));
+      if (selectedAddress == null) {
+        Alert.alert(
+            '警告',
+            '没有选择地址，请回主页选择地址',
+            [
+              {text: 'Cancel', onPress: () => {this.back()}, style: 'cancel'},
+            ],
+            {cancelable: false}
+        )
+      }
+    })()
     this.getGoods();
   }
 
@@ -85,6 +91,15 @@ export default class DetailPage extends Component {
   getGoods(){
     api.detailGetAllGoodsId(this.state.sellerId).then(res=>{
       let goodsId = JSON.parse(res.goodsId);
+      let goods = {
+        "热销榜":[],
+        "盖饭":[],
+        "小菜":[],
+        "小吃":[],
+        "汤/饮料":[],
+        "双拼套餐A":[],
+        "双拼套餐B":[]
+      }
       api.detailGetAllGoods(goodsId).then(res=> {
         let list = res;
         list.forEach(item=>{
@@ -96,10 +111,12 @@ export default class DetailPage extends Component {
           let grade = parseInt(Math.random()*20)+80;
           food.sale = "月售"+item.salesVolume+"份 好评率"+grade+"%";
           let key = this.state.stockToTC[item.stock];
-          let len = this.state.goods[key].length;
+          let len = goods[key].length;
           food['key'] = parseInt(item.stock)-1+'-'+len;
-          this.state.goods[key].push(food);
+          goods[key].push(food);
         })
+        console.log(goods);
+        this.setState({goods:goods})
       });
     });
   }
@@ -149,7 +166,7 @@ export default class DetailPage extends Component {
         }}>
           <ScrollableTabView page={0} renderTabBar={() => <TabViewBar/>}>
             <GoodsList ref="goodsList" minus={this.minusItem.bind(this)} lens={this.state.lens} goods={this.state.goods} onAdd={this.onAdd.bind(this)} headHeight={marginTop} tabLabel="商品"/>
-            <Comments headHeight={marginTop} tabLabel="评价(4.1分)"/>
+            {/*<Comments headHeight={marginTop} tabLabel="评价(4.1分)"/>*/}
           </ScrollableTabView>
         </View>
       </Animated.View>
@@ -258,7 +275,7 @@ export default class DetailPage extends Component {
           }}
           animateEnd={this.parabolicEnd.bind(this)}
         />
-        <ShopBar ref={"shopbar"} list={this.state.selected} lens={this.state.lens}/>
+        <ShopBar ref={"shopbar"} list={this.state.selected} lens={this.state.lens} sellerName={data.name}/>
       </View>
     )
   }

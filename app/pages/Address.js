@@ -81,13 +81,16 @@ export default class Address extends Component {
   }
 
   add(){
-      let that = this;
+      let data = {
+          userId:this.state.userId,
+          password:this.state.password
+      }
     this.props.navigator.push({
         component: EditAddress,
         args: {
           pageType: 0,
-            'refresh':that.getAllAddr,
-          title: "新增地址"
+          title: "新增地址",
+            data
         }
     })
   }

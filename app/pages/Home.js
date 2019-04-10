@@ -461,19 +461,19 @@ export default class HomePage extends Component {
               }
           >
             {this._renderHeader()}
-            <View style={{backgroundColor: "#fff", paddingBottom: 10}}>
-              {this._renderTypes()}
-              {/*拜个早年图片展示*/}
-              <TouchableOpacity>
-                <View style={{height: px2dp(90), paddingHorizontal: 10}}>
-                  <Image source={LocalImg.ad1} style={{height: px2dp(90), width: width-20, resizeMode: 'cover'}}/>
-                </View>
-              </TouchableOpacity>
-            </View>
+            {/*<View style={{backgroundColor: "#fff", paddingBottom: 10}}>*/}
+              {/*{this._renderTypes()}*/}
+              {/*/!*拜个早年图片展示*!/*/}
+              {/*<TouchableOpacity>*/}
+                {/*<View style={{height: px2dp(90), paddingHorizontal: 10}}>*/}
+                  {/*<Image source={LocalImg.ad1} style={{height: px2dp(90), width: width-20, resizeMode: 'cover'}}/>*/}
+                {/*</View>*/}
+              {/*</TouchableOpacity>*/}
+            {/*</View>*/}
 
-            <View style={styles.recom}>
-              {this._renderHot()}
-            </View>
+            {/*<View style={styles.recom}>*/}
+              {/*{this._renderHot()}*/}
+            {/*</View>*/}
             {/*<View style={styles.card}>*/}
             {/*{this._renderLtime()}*/}
             {/*</View>*/}

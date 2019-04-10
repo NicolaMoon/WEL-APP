@@ -7,11 +7,12 @@ const getFetch=(params) =>{
 }
 
 const postFetch = (params) =>{
-  return fetch(HOST, {
+    let data = Object.entries(params).reduce((before, current) => `${before}&${current[0]}=${current[1]}`, '');
+  return fetch('http://106.12.196.243:8080/hungry', {
     method: 'POST',
-    body: JSON.stringify(params),
+    body: data,
     headers: {
-      'content-type': 'application/json'
+      'content-type': 'application/x-www-form-urlencoded'
     },
   }).then(res => res.json());
 }
@@ -24,7 +25,7 @@ const loginSubmit = (params) => {
     password : params.password
 }
   console.log(data);
-  return getFetch(data);
+  return postFetch(data);
 };
 
 const registerSubmit = (params) => {
@@ -113,6 +114,38 @@ const addressAddAddress = (params) => {
     };
     return getFetch(data);
 };
+const TackOutGetAllId = (params) => {
+    let data = {
+        choice:6,
+        operateCode:4,
+        userId:params.userId,
+        password:params.password,
+    };
+    return getFetch(data);
+};
+const TackOutGetAllOrder = (params) => {
+    let data = {
+        choice:6,
+        operateCode:5,
+        userId:params.userId,
+        password:params.password,
+        ordersId:params.ordersId.join(',')
+    };
+    return getFetch(data);
+};
+const shopBarAddOrder = (params) => {
+    let data = {
+        choice:6,
+        operateCode:1,
+        userId:params.userId,
+        password:params.password,
+        addrId:params.addrId,
+        totalPrice:params.totalPrice,
+        state:2,
+        content:params.content
+    };
+    return postFetch(data);
+};
 export default api = {
   loginSubmit,
   registerSubmit,
@@ -123,6 +156,9 @@ export default api = {
     addressGetAddressId,
     addressGetAllAddress,
     addressSetAddress,
-    addressAddAddress
+    addressAddAddress,
+    TackOutGetAllId,
+    TackOutGetAllOrder,
+    shopBarAddOrder
 
 };

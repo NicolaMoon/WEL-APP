@@ -39,28 +39,66 @@ export default class ShopBar extends Component{
       }).start()
     }
     pay(){
-      Alert.alert(
-          '订单支付',
-          '订单支付后无法取消，确认支付吗？',
-          [
-            {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-            {text: 'OK', onPress: () => this.upPayData()},
-          ],
-          { cancelable: false }
-      )
-    }
-    upPayData(){
-        (async () => {
-        try {
-          const value = await AsyncStorage.getAllKeys();
-          if (value !== null) {
-            // We have data!!
-            console.log(value);
-          }
-        } catch (error) {
-          // Error retrieving data
+        console.log(this.props);
+
+        let data = {
+            userId:'',
+            password:'',
+            addrId:'',
+            totalPrice:this.props.lens.maxPrice,
+            content:[]
+        };
+        let info ='';
+        let content ='';
+        let o = {};
+        this.props.list.forEach(item=>{
+            if(item.name in o){
+                o[item.name].num ++;
+            }else {
+                o[item.name] = {num:1,value:item.price};
+            }
+        })
+        data.content.push(this.props.sellerName);
+        for(let i in o){
+            info += `${i} * ${o[i].num}  ￥${o[i].num*o[i].value} \n`;
+            content += `${i}*${o[i].num}`;
         }
-      })();
+        data.content.push(content);
+        (async () => {
+            try {
+                const userForm = JSON.parse(await AsyncStorage.getItem('userForm'));
+                const selectedAddress = JSON.parse(await AsyncStorage.getItem('selectedAddress'));
+                data.userId = userForm.userId;
+                data.password = userForm.password;
+                data.addrId = selectedAddress.addrId;
+
+                info += `收货地址：${selectedAddress.address} \n`
+
+            } catch (error) {
+                // Error retrieving data
+            }
+            info+= `总计花费：￥${this.props.lens.maxPrice} \n\n`
+            Alert.alert(
+                '订单',
+                `${info}订单支付后无法取消，确认支付吗？
+          `,
+                [
+                    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+                    {text: 'OK', onPress: () => this.addOrder(data)},
+                ],
+                { cancelable: false }
+            )
+        })();
+
+    }
+    addOrder(data){
+        (async ()=> {
+            let balance;
+            const userWallet = JSON.parse(await AsyncStorage.getItem('userWallet'));
+            balance = parseInt(userWallet.balance) - parseInt(data.totalPrice);
+            AsyncStorage.setItem('userWallet',JSON.stringify({balance:balance,integration:10}));
+        })()
+        api.shopBarAddOrder(data).then(()=>{});
     }
     render(){
       let { list, lens } = this.props

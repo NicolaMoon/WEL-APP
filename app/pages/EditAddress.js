@@ -43,7 +43,12 @@ export default class EditAddress extends Component {
       ["userId","name","phone","sex","address","province","city","area","specificAddr","addrId","password"].forEach((item) => {
           obj[item] = this.props.data[item]
       })
-      console.log(obj);
+      this.setState(obj)
+    }else{
+      let obj = {};
+      ["userId","password"].forEach((item) => {
+        obj[item] = this.props.data[item]
+      })
       this.setState(obj)
     }
     this.refs.name.focus()
@@ -74,7 +79,7 @@ export default class EditAddress extends Component {
       let o = {
         userId: this.state.userId,
         password: this.state.password,
-        linkman: this.state.linkman,
+        linkman: this.state.name,
         sex: this.state.sex,
         phone: this.state.phone,
         province: this.state.province,
@@ -82,6 +87,7 @@ export default class EditAddress extends Component {
         area: this.state.area,
         specificAddr: this.state.specificAddr
       }
+      console.log(o);
       api.addressAddAddress(o).then(res=>{
         if(res.state == 'success'){
           Alert.alert('新建成功');
@@ -95,7 +101,8 @@ export default class EditAddress extends Component {
   back(){
     console.log(this.props);
     //this.props['refresh']();
-    this.props.navigator.pop()
+    this.props.navigator.pop();
+    this.props.navigator.pop();
   }
   render(){
     return (
@@ -124,7 +131,7 @@ export default class EditAddress extends Component {
             <View style={styles.item}>
               <Text style={styles.label}>{"电话"}</Text>
               <View style={{flex: 1}}>
-                <TextInput underlineColorAndroid="transparent" keyboardType={"numeric"} value={this.state.phone} style={styles.textInput} placeholder="收货人电话" placeholderTextColor="#aaa"/>
+                <TextInput underlineColorAndroid="transparent" keyboardType={"numeric"} value={this.state.phone} onChangeText={(phone) => this.setState({phone})} style={styles.textInput} placeholder="收货人电话" placeholderTextColor="#aaa"/>
               </View>
             </View>
             <View style={styles.item}>
